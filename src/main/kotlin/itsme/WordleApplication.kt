@@ -1,4 +1,4 @@
-package itsme.ronjie.wordle
+package itsme
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
@@ -10,5 +10,5 @@ import org.springframework.context.annotation.ComponentScan
 class WordleApplication
 
 fun main(args: Array<String>) {
-	runApplication<WordleApplication>(*args)
+    runApplication<WordleApplication>(*args)
 }
