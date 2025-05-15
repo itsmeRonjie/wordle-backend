@@ -28,3 +28,11 @@ data class GuessResponse(
     val attemptNumber: Int,
     val gameOver: Boolean
 )
+
+data class GameStatus(
+    val isCorrect: Boolean,
+    val message: String,
+    val attemptNumber: Int,
+    val isGameOver: Boolean,
+    val newWord: String? = null
+)
