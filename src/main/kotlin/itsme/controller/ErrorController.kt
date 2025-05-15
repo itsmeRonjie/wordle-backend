@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class CustomErrorController : ErrorController {
-    
+
     @GetMapping("/error", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun handleError(): Map<String, Any> {
         return mapOf(
