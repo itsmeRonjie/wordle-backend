@@ -8,7 +8,7 @@ import org.springframework.web.context.request.WebRequest
 
 @Configuration
 class ErrorConfig {
-    
+
     @Bean
     fun errorAttributes(): DefaultErrorAttributes {
         return object : DefaultErrorAttributes() {
