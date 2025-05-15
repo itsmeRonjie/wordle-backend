@@ -16,39 +16,39 @@ class GeminiService(@Value("\${gemini.api.key}") private val apiKey: String) {
     private val logger = Logger.getLogger(GeminiService::class.java.name)
 
     fun generateWord(): String {
-            try {
-                logger.info("Generating a fresh word from Gemini API...")
-                val request = GeminiRequest(
-                    contents = listOf(
-                        Content(
-                            parts = listOf(
-                                Part(
-                                    text = "Generate a single 5-letter English word suitable for a Wordle game." +
-                                            " Respond with just the word and nothing else." +
-                                            " The word should be common enough that most people would know it."
-                                )
+        try {
+            logger.info("Generating a fresh word from Gemini API...")
+            val request = GeminiRequest(
+                contents = listOf(
+                    Content(
+                        parts = listOf(
+                            Part(
+                                text = "Generate a single 5-letter English word suitable for a Wordle game." +
+                                        " Respond with just the word and nothing else." +
+                                        " The word should be common enough that most people would know it."
                             )
                         )
                     )
                 )
-    
-                val response = webClient.post()
-                    .uri("/gemini-2.0-flash:generateContent?key=${apiKey}")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(request)
-                    .retrieve()
-                    .bodyToMono(GeminiResponse::class.java)
-                    .block()
-    
-                val generatedText = response?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: ""
-    
-                val cleanedWord = generatedText.trim().replace("[^a-zA-Z]".toRegex(), "").lowercase()
-                val validWord = if (cleanedWord.length == 5) cleanedWord else "nymph"
-                logger.info("Generated a fresh word: $validWord")
-                return validWord
-            } catch (e: Exception) {
-                logger.warning("Error generating word from Gemini API: ${e.message}")
-                return "nymph"
+            )
+
+            val response = webClient.post()
+                .uri("/gemini-2.0-flash:generateContent?key=${apiKey}")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(GeminiResponse::class.java)
+                .block()
+
+            val generatedText = response?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: ""
+
+            val cleanedWord = generatedText.trim().replace("[^a-zA-Z]".toRegex(), "").lowercase()
+            val validWord = if (cleanedWord.length == 5) cleanedWord else "nymph"
+            logger.info("Generated a fresh word: $validWord")
+            return validWord
+        } catch (e: Exception) {
+            logger.warning("Error generating word from Gemini API: ${e.message}")
+            return "nymph"
         }
     }
 
@@ -65,9 +65,9 @@ class GeminiService(@Value("\${gemini.api.key}") private val apiKey: String) {
     fun isValidEnglishWord(word: String): Boolean {
         try {
             val cleanWord = word.trim().lowercase()
-            
+
             if (cleanWord.length != 5) return false
-            
+
             val request = GeminiRequest(
                 contents = listOf(
                     Content(
@@ -80,7 +80,7 @@ class GeminiService(@Value("\${gemini.api.key}") private val apiKey: String) {
                     )
                 )
             )
-    
+
             val response = webClient.post()
                 .uri("/gemini-2.0-flash:generateContent?key=${apiKey}")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -88,9 +88,10 @@ class GeminiService(@Value("\${gemini.api.key}") private val apiKey: String) {
                 .retrieve()
                 .bodyToMono(GeminiResponse::class.java)
                 .block()
-    
-            val answer = response?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()?.lowercase() ?: ""
-            
+
+            val answer =
+                response?.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text?.trim()?.lowercase() ?: ""
+
             return answer.contains("yes")
         } catch (e: Exception) {
             logger.warning("Error checking word validity with Gemini API: ${e.message}")

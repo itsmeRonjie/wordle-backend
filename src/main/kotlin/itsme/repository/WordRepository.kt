@@ -22,63 +22,63 @@ class WordRepository(
         val word = if (generateFresh) {
             generateFreshWord()
         } else {
-                val availableWords = wordList.filter { !generatedWordsHistory.contains(it) }
-                val selectedWord = if (availableWords.isNotEmpty()) {
-                    availableWords.random()
-                } else {
-                    val usedInGames = gameAnswers.values.toSet()
-                    generatedWordsHistory.clear()
-                    generatedWordsHistory.addAll(usedInGames)
-                    
-                    val newAvailableWords = wordList.filter { !generatedWordsHistory.contains(it) }
-                    if (newAvailableWords.isNotEmpty()) newAvailableWords.random() else wordList.random()
-                }
-                
-                generatedWordsHistory.add(selectedWord)
-                selectedWord
+            val availableWords = wordList.filter { !generatedWordsHistory.contains(it) }
+            val selectedWord = if (availableWords.isNotEmpty()) {
+                availableWords.random()
+            } else {
+                val usedInGames = gameAnswers.values.toSet()
+                generatedWordsHistory.clear()
+                generatedWordsHistory.addAll(usedInGames)
+
+                val newAvailableWords = wordList.filter { !generatedWordsHistory.contains(it) }
+                if (newAvailableWords.isNotEmpty()) newAvailableWords.random() else wordList.random()
+            }
+
+            generatedWordsHistory.add(selectedWord)
+            selectedWord
         }
         gameAnswers[gameId] = word
         return Pair(gameId, word)
     }
 
     fun generateFreshWord(): String {
-            for (attempt in 1..3) {
-                try {
-                    val word = geminiService.generateWord()
-                    
-                    if (word.isNotEmpty() && word.length == 5) {
-                        if (generatedWordsHistory.contains(word)) {
-                            continue
-                        }
+        for (attempt in 1..3) {
+            try {
+                val word = geminiService.generateWord()
 
-                        generatedWordsHistory.add(word)
-                        
-                        if (!wordList.contains(word)) {
-                            additionalWords.add(word)
-                        }
-                        return word
+                if (word.isNotEmpty() && word.length == 5) {
+                    if (generatedWordsHistory.contains(word)) {
+                        continue
                     }
-                } catch (e: Exception) {
-                    println("Failed to generate word: ${e.message}")
-                }
-            }
 
-            val availableWords = wordList.filter { !generatedWordsHistory.contains(it) }
-            
-            return if (availableWords.isNotEmpty()) {
-                val word = availableWords.random()
-                generatedWordsHistory.add(word)
-                word
-            } else {
-                val usedInGames = gameAnswers.values.toSet()
-                generatedWordsHistory.clear()
-                generatedWordsHistory.addAll(usedInGames)
-                
-                val newAvailableWords = wordList.filter { !generatedWordsHistory.contains(it) }
-                val word = if (newAvailableWords.isNotEmpty()) newAvailableWords.random() else wordList.random()
-                generatedWordsHistory.add(word)
-                word
+                    generatedWordsHistory.add(word)
+
+                    if (!wordList.contains(word)) {
+                        additionalWords.add(word)
+                    }
+                    return word
+                }
+            } catch (e: Exception) {
+                println("Failed to generate word: ${e.message}")
             }
+        }
+
+        val availableWords = wordList.filter { !generatedWordsHistory.contains(it) }
+
+        return if (availableWords.isNotEmpty()) {
+            val word = availableWords.random()
+            generatedWordsHistory.add(word)
+            word
+        } else {
+            val usedInGames = gameAnswers.values.toSet()
+            generatedWordsHistory.clear()
+            generatedWordsHistory.addAll(usedInGames)
+
+            val newAvailableWords = wordList.filter { !generatedWordsHistory.contains(it) }
+            val word = if (newAvailableWords.isNotEmpty()) newAvailableWords.random() else wordList.random()
+            generatedWordsHistory.add(word)
+            word
+        }
     }
 
     fun getAnswerForGame(gameId: String): String? {
@@ -100,7 +100,7 @@ class WordRepository(
         }
         return false
     }
-    
+
     fun isValidWord(word: String): Boolean {
         val normalizedWord = word.lowercase()
 
@@ -115,7 +115,7 @@ class WordRepository(
         if (isValid) {
             additionalWords.add(normalizedWord)
         }
-        
+
         return isValid
     }
 
@@ -132,30 +132,30 @@ class WordRepository(
             "begin", "cover", "dance", "earth", "flame", "grade", "house"
         )
 
-            val geminiWord = geminiService.generateWord()
-            if (geminiWord.isNotEmpty() && geminiWord.length == 5) {
-                val wordList = mutableListOf(geminiWord)
-                
-                try {
-                    val resourcePath = "/words.txt"
-                    val inputStream = javaClass.getResourceAsStream(resourcePath)
-        
-                    if (inputStream != null) {
-                        val fileWords = BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                            reader.lines()
-                                .filter { it.length == 5 }
-                                .map { it.trim().lowercase() }
-                                .toList()
-                        }
-                        wordList.addAll(fileWords)
+        val geminiWord = geminiService.generateWord()
+        if (geminiWord.isNotEmpty() && geminiWord.length == 5) {
+            val wordList = mutableListOf(geminiWord)
+
+            try {
+                val resourcePath = "/words.txt"
+                val inputStream = javaClass.getResourceAsStream(resourcePath)
+
+                if (inputStream != null) {
+                    val fileWords = BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                        reader.lines()
+                            .filter { it.length == 5 }
+                            .map { it.trim().lowercase() }
+                            .toList()
                     }
-                } catch (e: Exception) {
-                    println("Failed to load additional words: ${e.message}")
+                    wordList.addAll(fileWords)
                 }
-                
-                return wordList
+            } catch (e: Exception) {
+                println("Failed to load additional words: ${e.message}")
             }
-    
+
+            return wordList
+        }
+
         val resourcePath = "/words.txt"
         return try {
             val inputStream = javaClass.getResourceAsStream(resourcePath)
