@@ -23,6 +23,11 @@ class IndexController {
                     "method" to "POST",
                     "requestBody" to mapOf("guess" to "5-letter word"),
                     "description" to "Submit a guess for the current game"
+                ),
+                mapOf(
+                    "path" to "/api/test/gemini-word",
+                    "method" to "GET",
+                    "description" to "Test the Gemini API word generation"
                 )
             ),
             "status" to "running"
